@@ -25,9 +25,4 @@ companies_list = ["Ginkgo Bioworks", "GlaxoSmithKline", "Canopy Growth", "Evolv 
 
 
 scraper = ArticleScraper(companies_list)
-
-scraper.get_links_labiotech()
-scraper.get_links_pharmatutor()
-scraper.get_links_venturebeat()
-scraper.get_links_techcrunch()
-scraper.get_links_hitconsultant()
+scraper.get_all_links()
