@@ -1,4 +1,5 @@
 from article_scraper import ArticleScraper
+from article_handler import ArticleHandler
 
 companies_list = ["Ginkgo Bioworks", "GlaxoSmithKline", "Canopy Growth", "Evolv Technology", "Aziyo Biologics",
                   "Bausch Health", "Evofem Biosciences", "Essity", "DermTech", "Cutera", "Arcadia Biosciences",
@@ -26,3 +27,7 @@ companies_list = ["Ginkgo Bioworks", "GlaxoSmithKline", "Canopy Growth", "Evolv 
 
 scraper = ArticleScraper(companies_list)
 scraper.get_all_links()
+
+handler = ArticleHandler("output.csv")
+handler.drop_na_rows(["article_link", "article_title"])
+handler.drop_duplicated_rows(["article_link"])
