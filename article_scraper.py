@@ -270,6 +270,46 @@ class ArticleScraper:
                 # name, leaving article title and article link empty
                 self._save_row_to_csv(company, "", "", resource_name)
 
+    def get_links_drugstorenews(self):
+        """
+        Method scraps the data from this news resource: https://drugstorenews.com
+        After this method scraps one article, it saves data into the .csv file immediately.
+        If there are no articles af some company, method will save only the company name and news resource into a data
+        file, leaving some fields (which are related to the existing article) empty.
+        """
+        self._check_data_storage_exists()
+
+        resource_name = "https://drugstorenews.com"
+        base_url = "https://drugstorenews.com/search?q="
+        driver = webdriver.Chrome()
+
+        for company in self._companies_list:
+            # convert company name so that it could be found using http request
+            company_name_for_url = company.replace(" ", "%20").replace("&", "%26")
+            driver.get(base_url + company_name_for_url)
+
+            # some companies have a lot of news articles, and they are located on several pages. Here we find out,
+            # how many pages a company has using navigation panel (with a number of the last page).
+            try:
+                amount_of_articles = int(driver.find_element(By.CLASS_NAME, "ais-Stats-text").text.split(" ")[0])
+                if amount_of_articles % 20 > 0:
+                    amount_of_pages = amount_of_articles // 20 + 1
+                else:
+                    amount_of_pages = amount_of_articles // 20
+
+                # going through each page, we collect information of all articles that are placed on a single page
+                for page in range(1, amount_of_pages + 1):
+                    driver.get(f"https://drugstorenews.com/search?q={company_name_for_url}&page={page}")
+                    articles = driver.find_elements(By.CLASS_NAME, "teaser-card__link")
+                    for article in articles:
+                        article_link = article.get_attribute('href')
+                        article_title = article.text
+                        self._save_row_to_csv(company, article_title, article_link, resource_name)
+            except:
+                # if there are no articles of a company, we will save into .csv file only a company and resource
+                # name, leaving article title and article link empty
+                self._save_row_to_csv(company, "", "", resource_name)
+
     def get_all_links(self):
         """
         Method allows us to scrap all the information from available news resources at once, without calling each method
@@ -280,3 +320,4 @@ class ArticleScraper:
         self.get_links_venturebeat()
         self.get_links_techcrunch()
         self.get_links_hitconsultant()
+        self.get_links_drugstorenews()
